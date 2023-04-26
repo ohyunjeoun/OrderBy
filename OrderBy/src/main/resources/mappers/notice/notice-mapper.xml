@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+ <mapper namespace="com.ta.orderby.Notice.model.mapper.NoticeMapper">
+ 	<sql id="boardListSql">
+      		SELECT N_NO,
+		       N_TITLE,
+		       N_DATE,
+		       N_RE_DATE,
+		       N_CONTENT,
+		       N_VIEW,
+		       N_STATUS,
+                M_NO,
+               INFOFILE_ID
+		FROM NOTICE
+ 	</sql>
+		<resultMap id="boardListResultMap" type="Notice">
+		<id property="n_no" column="N_NO"/>
+		<result property="n_title" column="N_TITLE"/>
+		<result property="n_date" column="N_DATE"/>
+		<result property="n_re_date" column="N_RE_DATE"/>
+		<result property="n_content" column="N_CONTENT"/>
+		<result property="n_view" column="N_VIEW"/>
+		<result property="n_status" column="N_STATUS"/>
+		<result property="m_no" column="M_NO"/>
+		<result property="infofile_id" column="INFOFILE_ID"/>
+	</resultMap> 
+ 
+ 
+       <resultMap id="boardDetailResultMap" type="Notice" extends="boardListResultMap">
+   		<result property="n_content" column="N_CONTENT"/>
+   		<result property="n_title" column="N_TITLE"/>
+   		<result property="n_re_date" column="N_RE_DATE"/>
+   		<!-- <collection property="replies" javaType="arraylist" columnPrefix="R_" resultMap="replyResultMap"/> -->
+   </resultMap>
+ 
+ 
+ 	<select id="selectBoardCount" resultType="_int">
+ 	        SELECT COUNT(*) 
+		FROM NOTICE 
+<!-- 		SELECT COUNT(*) 
+		FROM NOTICE WHERE N_STATUS='Y' -->
+	</select>
+	
+   <select id="selectAll" resultMap="boardListResultMap">
+      <include refid="boardListSql"/>
+      WHERE N_STATUS ='Y' ORDER BY N_NO DESC
+   </select>
+
+<select  id="selectBoardByNo" parameterType="_int" resultMap="boardDetailResultMap">
+<!-- 		SELECT -->
+<!-- 		    N_NO, -->
+<!-- 		    N_TITLE, -->
+<!-- 		    N_DATE, -->
+<!-- 		    N_RE_DATE, -->
+<!-- 		    N_CONTENT, -->
+<!-- 		    N_VIEW, -->
+<!-- 		    N_STATUS, -->
+<!-- 		    N.M_NO, -->
+<!-- 		    N.INFOFILE_ID -->
+<!-- 		    FROM NOTICE N -->
+<!-- 		    INNER JOIN MEMBER M ON(N.M_NO = M.M_NO) -->
+<!-- 		    LEFT JOIN INFOFILE I ON(N.INFOFILE_ID = I.IF_ID) -->
+<!-- 		  WHERE N_STATUS = 'Y' AND N_NO = #{n_no} -->
+		SELECT * FROM NOTICE WHERE N_NO = #{n_no}
+      </select>
+ 
+ 
+ <update id="updateStatus" parameterType="map">
+      		UPDATE NOTICE SET N_STATUS= #{n_status} WHERE N_NO= #{n_no}
+      </update>
+      
+      
+      
+         <insert id="insertBoard" parameterType="Notice"
+   		   useGeneratedKeys="true" keyProperty="n_no" keyColumn="N_NO">
+      INSERT INTO NOTICE (
+         N_NO,
+         M_NO,
+         N_TITLE,
+         N_CONTENT,
+     	 N_VIEW,
+         INFOFILE_ID
+        
+      )
+      VALUES (
+         SEQ_NOTICE_N_NO.NEXTVAL,
+         1,
+         #{n_title},
+         #{n_content},
+         #{n_view},
+         #{infofile_id}
+      )
+   
+   </insert>
+   <update id="updateBoard" parameterType="Notice">
+
+	          UPDATE NOTICE
+	          <trim prefix="SET" suffixOverrides=",">
+	          	<if test="n_title != null">
+	         		N_TITLE=#{n_title},
+	         	</if>
+	         	<if test="n_content != null">
+	         		N_CONTENT=#{n_content},
+	         	</if>
+	         	 N_RE_DATE=SYSDATE 
+	          </trim>
+	          WHERE N_NO=#{n_no}
+      </update>
+   
+   
+           <update id="plusview" parameterType="int">
+  UPDATE NOTICE SET N_VIEW = N_VIEW + 1 WHERE N_NO = #{n_no}
+</update>
+
+ </mapper>

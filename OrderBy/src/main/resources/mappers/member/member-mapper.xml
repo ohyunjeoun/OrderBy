@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Mapper 설정 파일임을 선언 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.ta.orderby.member.model.mapper.MemberMapper">
+	<!--
+		중복되는 쿼리 내용을 재사용하기 위한 SQL 조각으로 사용하려는 요소보다 항상 위에 있어야한다.
+		sql 조각 저장~ includ로 사용 
+	-->
+	<sql id="selectMemberSql">
+		SELECT M_NO,
+       		   M_ID,
+		       M_PASSWORD,
+		       M_NAME,
+		       M_BIRTH,
+		       M_EMAIL,
+		       M_PHONE,
+		       M_GENDER,
+		       M_ADDRESS,
+		       M_DETAIL_ADD,
+		       M_POINT,
+		       M_ROLE,
+		       M_ENROLL_DATE,
+		       M_MODIFY_DATE,
+		       M_STATUS,
+		       M_CNUM,
+		       M_PCOUNT
+		FROM MEMBER
+	</sql>
+
+	<resultMap id="memberResultMap" type="Member">
+		<!-- 조회 결과의 기본 키 컬럼을 매핑한다. -->
+		<id property="mNo" column="M_NO"/>
+		<!-- 조회 결과의 일반 컬럼을 매핑한다. -->
+		<result property="mId" column="M_ID"/>
+		<result property="mPassword" column="M_PASSWORD"/>
+		<result property="mName" column="M_NAME"/>
+		<result property="mBirth" column="M_BIRTH"/>
+		<result property="mEmail" column="M_EMAIL"/>
+		<result property="mPhone" column="M_PHONE"/>
+		<result property="mGender" column="M_GENDER"/>
+		<result property="mAddress" column="M_ADDRESS"/>
+		<result property="mDetailAdd" column="M_DETAIL_ADD"/>
+		<result property="mPoint" column="M_POINT"/>
+		<result property="mRole" column="M_ROLE"/>
+		<result property="mEnrollDate" column="M_ENROLL_DATE"/>
+		<result property="mModifyDate" column="M_MODIFY_DATE"/>
+		<result property="mStatus" column="M_STATUS"/>
+		<result property="mCnum" column="M_CNUM"/>
+		<result property="mPcount" column="M_PCOUNT"/>
+	</resultMap>
+	
+	<select id="selectCount" resultType="_int">
+		SELECT COUNT(*) FROM MEMBER
+	</select>
+	
+	
+	<!-- 아이디 중복 체크 -->
+	<select id="checkId" parameterType="String" resultType="int">
+		SELECT COUNT(M_ID)
+		FROM MEMBER
+		WHERE M_ID = #{mId}
+	</select>
+	
+	<!--
+		쿼리문의 수행 결과가 담긴 ResultSet은 resultType의 인스턴스에 자동으로 mapping 되어 리턴된다.
+		단, 조회 결과의 컬럼명과 자바 클래스의 필드명이 동일해야 자동으로 mapping 된다. (대소문자는 구분하지 않는다.)
+		
+	<select id="selectAll" resultType="com.kh.mybatis.member.model.vo.Member">
+	-->
+	<!-- resultType과 resultMap을 같이 사용할 수 없다 -->
+	<select id="selectAll" resultMap="memberResultMap">
+		<!--
+		방법 1) 쿼리문에서 "AS 별칭"으로 조회되는 컬럼명을 변경한다. 
+		SELECT NO,
+       		   ID,
+		       PASSWORD,
+		       ROLE,
+		       NAME,
+		       PHONE,
+		       EMAIL,
+		       ADDRESS,
+		       HOBBY,
+		       STATUS,
+		       ENROLL_DATE AS enrollDate,
+		       MODIFY_DATE AS modifyDate
+		FROM MEMBER
+		WHERE STATUS = 'Y'
+		-->
+		<!--
+		방법 2) resultMap을 이용해서 명시적으로 컬럼명과 필드명을 mapping 시켜준다. 
+		SELECT NO,
+       		   ID,
+		       PASSWORD,
+		       ROLE,
+		       NAME,
+		       PHONE,
+		       EMAIL,
+		       ADDRESS,
+		       HOBBY,
+		       STATUS,
+		       ENROLL_DATE,
+		       MODIFY_DATE
+		FROM MEMBER
+		WHERE STATUS = 'Y'
+		-->
+		<include refid="selectMemberSql" />
+		WHERE M_STATUS = 'Y'
+	</select>
+	
+	<!-- 
+      외부에서 매개변수로 받는 값이 있으면 해당하는 파라미터의 타입을 지정해야 한다. (parameterType="string")
+      외부에서 매개변수로 받은 값은 #{변수명}으로 값을 가져온다.
+    -->
+	<select id="selectMemberById" parameterType="string" resultMap="memberResultMap">
+		<include refid="selectMemberSql" />
+		WHERE ID = #{mId} AND M_STATUS = 'Y'
+	</select>
+	<!--
+		타입얼리어스 config에 지정해놔서 패키지명 풀로 안써도됨
+		
+		데이터를 insert 후 PK 값을 받아오기 위해서는 useGeneratedKeys, keyColumn, keyProperty 속성을 추가해야 한다.
+			- useGeneratedKeys : insert 후에 PK 값을 받아올 수 있도록 허용하는 속성
+			- keyColumn : 실제 PK에 해당하는 컬럼을 지정하는 속성
+			- keyProperty : PK 값이 담길 파라미터 인스턴스의 필드명을 지정하는 속성
+	-->
+	<insert id="insertMember" parameterType="Member"
+			useGeneratedKeys="true" keyColumn="M_NO" keyProperty="mNo"> <!-- 프라이머리 키값을 외래키로 들어가게 하는거 -->
+		INSERT INTO MEMBER (
+			M_NO,
+     		M_ID,
+	        M_PASSWORD,
+	        M_NAME,
+	        M_BIRTH,
+	   		M_EMAIL,
+	       	M_PHONE,
+	       	M_GENDER,
+	       	M_ADDRESS,
+	       	M_DETAIL_ADD,
+	       	M_POINT,
+	       	M_ROLE,
+	       	M_ENROLL_DATE,
+	       	M_MODIFY_DATE,
+	       	M_STATUS,
+	       	M_CNUM
+       	) VALUES(
+       		SEQ_M_NO.NEXTVAL,
+       		#{mId},
+       		#{mPassword},
+       		#{mName},
+       		#{mBirth},
+       		#{mEmail},
+       		#{mPhone},
+       		#{mGender},
+       		#{mAddress},
+       		#{mPoint},
+       		#{mRole},
+       		#{mDetailAdd},
+       		DEFAULT,
+       		DEFAULT,
+       		DEFAULT,
+       		DEFAULT,
+       		DEFAULT,
+       		DEFAULT
+       	)
+	</insert>
+	
+	<update id="updateMember" parameterType="Member">
+		UPDATE MEMBER 
+		SET 
+			M_NAME = #{mName},
+			M_PHONE = #{mPhone},
+			M_EMAIL = #{mEmail},
+			M_EMAIL = #{mPhone},
+			M_ADDRESS = #{mAddress},
+			M_ADDRESS = #{mDetailAdd},
+			M_MODIFY_DATE = SYSDATE
+		WHERE M_NO = #{mNo}
+	</update>
+	
+	<!--
+		<delete id="deleteMember" parameterType="string">
+		DELETE FROM MEMBER WHERE ID = #{id}
+	</delete>
+	-->
+	
+	<update id="updateMemberStatus" parameterType="map">
+		UPDATE MEMBER
+		SET
+			M_STATUS = #{mStatus}
+		WHERE
+			M_NO = #{mNo}
+	</update>	
+	
+	
+</mapper>

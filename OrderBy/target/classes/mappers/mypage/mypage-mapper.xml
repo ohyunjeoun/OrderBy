@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+  <mapper namespace="com.ta.orderby.Payment.model.mapper.PaymentMapper">
+ 	<sql id="paymentListSql">
+ 	SELECT 
+		    P_NO,
+		    P_METHOD,
+		    P_DATE,
+		    P_TOT_PRICE,
+		    P_DIS_PRICE,
+		    P_FIN_PRICE,
+		    P_STATUS,
+		    P.M_NO,
+		    P.C_NO,
+		    P.MC_NO,
+		    M.MC_NAME,
+		    C.C_NAME
+ 
+ 	FROM PAYMENT P
+ FULL OUTER JOIN CAR C ON (P.C_NO = C.C_NO)
+ FULL OUTER JOIN MOTOCYCLE M ON(P.MC_NO = M.MC_NO)
+ WHERE P_STATUS = 'N'
+ 	</sql>
+	<resultMap id="paymentListResultMap" type="Payment">
+		<id property="p_no" column="P_NO"/>
+		<result property="p_method" column="P_METHOD"/>
+		<result property="p_date" column="P_DATE"/>
+		<result property="p_tot_price" column="P_TOT_PRICE"/>
+		<result property="p_dis_price" column="P_DIS_PRICE"/>
+		<result property="p_fin_price" column="P_FIN_PRICE"/>
+		<result property="p_status" column="P_STATUS"/>
+		<result property="m_no" column="M_NO"/>
+		<result property="c_no" column="C_NO"/>
+		<result property="mc_no" column="MC_NO"/>
+		<result property="mc_name" column="MC_NAME"/>
+		<result property="c_name" column="C_NAME"/>
+	</resultMap> 
+	
+	 <select id="selecPaymentCount" resultType="_int">
+      SELECT COUNT(*) FROM PAYMENT
+   </select>
+	
+	   <select id="selectAll" resultMap="paymentListResultMap">
+      <include refid="paymentListSql"/>
+      ORDER BY P_NO DESC
+   </select>
+	
+	</mapper>

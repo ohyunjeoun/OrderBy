@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.ta.orderby.Reserve.model.mapper.ReserveMapper">
+  <sql id="reserveListSql">
+    SELECT 
+		R_NO,
+        VEHICLE,
+        RENT_DATE,
+        RETURN_DATE,
+        STORE,
+        P.P_NO
+	 FROM RESERVATION R
+	 INNER JOIN PAYMENT P ON (P.P_NO = R.P_NO)
+  </sql>
+  <resultMap id="reserveListResultMap" type="Reserve">
+		<id property="r_no" column="R_NO"/>
+		<result property="vehicle" column="VEHICLE"/>
+		<result property="rent_date" column="RENT_DATE"/>
+		<result property="return_date" column="RETURN_DATE"/>
+		<result property="store" column="STORE"/>
+		<result property="p_no" column="P_NO"/>
+  </resultMap>
+  
+         <resultMap id="reserveDetailResultMap" type="Reserve" extends="reserveListResultMap">
+         <id property="r_no" column="R_NO"/>
+   		<result property="vehicle" column="VEHICLE"/>
+		<result property="rent_date" column="RENT_DATE"/>
+		<result property="return_date" column="RETURN_DATE"/>
+		<result property="store" column="STORE"/>
+   		<!-- <collection property="replies" javaType="arraylist" columnPrefix="R_" resultMap="replyResultMap"/> -->
+   </resultMap>
+  
+  <delete id="updateStatus" parameterType="map">
+      		DELETE FROM RESERVATION
+        		WHERE R_NO=#{r_no}
+      </delete>
+  
+  
+   <select id="selecReserveCount" resultType="_int">
+      SELECT COUNT(*) FROM RESERVATION
+   </select>
+  
+  
+    <select id="selectAll" resultMap="reserveListResultMap">
+      <include refid="reserveListSql"/>
+    		ORDER BY R_NO DESC
+   </select>
+  
+  
+  <select  id="selectReserveByNo" parameterType="_int" resultMap="reserveDetailResultMap">
+
+		SELECT * FROM RESERVATION WHERE R_NO = #{r_no}
+      </select>
+  
+  
+  
+  </mapper>

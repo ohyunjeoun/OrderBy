@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.ta.orderby.Dibs.model.mapper.DibsMapper">
+  <sql id="dibsListSql">
+	  
+  SELECT 
+		M_NO,
+        L_ID,
+        L_CAR,
+        L_MC,
+        L_PR,
+        M.MC_NAME,
+        C.C_NAME
+ 
+		FROM LIST L
+Left JOIN CAR C ON (L.L_CAR = C.C_NO)
+Left JOIN MOTOCYCLE M ON(L.L_MC = M.MC_NO)
+  </sql>
+  <resultMap id="dibsListResultMap" type="Dibs">
+		<id property="m_no" column="M_NO"/>
+		<result property="l_id" column="L_ID"/>
+		<result property="l_car" column="L_CAR"/>
+		<result property="l_mc" column="L_MC"/>
+		<result property="l_pr" column="L_PR"/>
+		<result property="c_name" column="C_NAME"/>
+		<result property="mc_name" column="MC_NAME"/>
+  </resultMap>
+  
+   <resultMap id="dibsDetailResultMap" type="Dibs" extends="dibsListResultMap">
+         <id property="m_no" column="M_NO"/>
+   		<result property="l_id" column="L_ID"/>
+		<result property="l_car" column="L_CAR"/>
+		<result property="l_mc" column="L_MC"/>
+		<result property="l_pr" column="L_PR"/>
+		<result property="c_name" column="C_NAME"/>
+		<result property="mc_name" column="MC_NAME"/>
+   		<!-- <collection property="replies" javaType="arraylist" columnPrefix="R_" resultMap="replyResultMap"/> -->
+   </resultMap>
+  
+        
+   <delete id="updateStatus" parameterType="map">
+      		DELETE FROM LIST
+        		WHERE M_NO = #{m_no}
+      </delete>
+     
+  
+     <select id="selecdibsCount" resultType="_int">
+      SELECT COUNT(*) FROM LIST
+   </select>
+   
+       <select id="selectAll" resultMap="dibsListResultMap">
+      <include refid="dibsListSql"/>
+    		ORDER BY M_NO DESC
+   </select>
+   
+     
+     <select  id="selectdibsByNo" parameterType="_int" resultMap="dibsDetailResultMap">
+
+		SELECT * FROM LIST WHERE M_NO = #{m_no}
+      </select>
+
+
+  </mapper>
